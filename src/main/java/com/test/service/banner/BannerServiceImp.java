@@ -14,12 +14,19 @@ public class BannerServiceImp implements BannerService {
     @Autowired
     BannerDao bannerDao;
 
+//    @Override
+//    public void insertBanner(String img,    String count, String getDate,
+//                             String title, String content) {
+//        System.out.println("banner " +  img + "," + count + "," +
+//                                        getDate + "," + title + "," + content);
+//        bannerDao.insertBanner(img,count,getDate,title,content);
+//    }
+
     @Override
-    public void insertBanner(String img,    String count, String getDate,
-                             String title, String content) {
-        System.out.println("banner " +  img + "," + count + "," +
-                                        getDate + "," + title + "," + content);
-        bannerDao.insertBanner(img,count,getDate,title,content);
+    public void insertBanner(BannerDto bannerDto){
+        System.out.println("Start insert banner service");
+        bannerDao.insertBanner(bannerDto);
+        System.out.println("End insert banner service");
     }
 
     @Override
@@ -35,5 +42,10 @@ public class BannerServiceImp implements BannerService {
     @Override
     public BannerDto readBasicDataByBanNo(String banNo) {
         return bannerDao.readBasicDataByBanNo(banNo);
+    }
+
+    @Override
+    public void updateBanner(String banNo, BannerDto bannerDto){
+        bannerDao.updateBanner(banNo, bannerDto);
     }
 }

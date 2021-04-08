@@ -1,23 +1,22 @@
 package com.test.controller;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud;
 import com.test.dto.AdminLoginDto;
 import com.test.dto.LectureDto;
-import com.test.dto.PopupDto;
+import com.test.dto.UserDto;
+import com.test.dto.InquiryDto;
 import com.test.service.adminLogin.AdminLoginService;
+import com.test.service.banner.BannerService;
+import com.test.service.inquiry.InquiryService;
 import com.test.service.lecture.LectureService;
 import com.test.service.popup.PopupService;
+import com.test.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 @Controller
 public class adminController {
@@ -28,125 +27,74 @@ public class adminController {
     @Autowired
     PopupService popupService;
     @Autowired
+    BannerService bannerService;
+    @Autowired
     LectureService lectureService;
-
+    @Autowired
+    UserService userService;
+    @Autowired
+    InquiryService inquiryService;
 
     @GetMapping("/admin")
     public String main(Model model){
         try{
+            System.out.println("welcome admin home");
+            ArrayList<LectureDto> HomeLectureList = lectureService.readBasicDataList();
+            ArrayList<UserDto> HomeUserList = userService.readUserInfoList();
+            ArrayList<InquiryDto> HomeInquiryList = inquiryService.readInquiryDataList();
+            ArrayList<LectureDto> ReclectureList = lectureService.readBasicDataListInRec();
+
+            model.addAttribute("HomeLectureList", HomeLectureList);
+            model.addAttribute("HomeUserList", HomeUserList);
+            model.addAttribute("HomeInquiryList", HomeInquiryList);
+            model.addAttribute("ReclectureList", ReclectureList);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return "admin/home";
+    }
+
+    @GetMapping("/admin/login")
+    public String loginForm(){
+        try{
             System.out.println("Start adminLogin");
-
         }catch (Exception e){
             e.printStackTrace();
         }
-        return "adminLogin";
+        return "admin/login";
     }
 
-
-    @GetMapping("admin/login/admin-page")
-    public String admin_page(Model model){
-        try{
-            System.out.println("Start admin_page");
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "template/demo_1/admin-page";
-    }
-
-
-    @GetMapping("admin/login/manage-banner")
-    public String manage_banner(Model model){
-        try{
-            System.out.println("Start manage_banner");
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "template/demo_1/manage-banner";
-    }
-
-    @GetMapping("admin/login/manage-category")
-    public String manage_category(Model model){
-        try{
-            System.out.println("Start manage_category");
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "template/demo_1/manage-category";
-    }
-
-    //@GetMapping("admin/manage-lecture")
-
-    @GetMapping("admin/login/manage-lecture")
-
-    public String manage_lecture(Model model){
-        try{
-            System.out.println("Start manage_lecture");
-            ArrayList<LectureDto> lectureList = lectureService.readBasicDataList();
-
-            if(lectureList.size() > 4){
-                while(lectureList.size() > 4){
-                    lectureList.remove(0);
-                }
-            }
-
-            Collections.reverse(lectureList);
-
-            model.addAttribute("lectureList", lectureList);
-            System.out.println("end manageLecture");
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "template/demo_1/manage-lecture";
-    }
-
-    @GetMapping("admin/login/manage-popup")
-    public String manage_popup(Model model){
-        try{
-            System.out.println("Start manage_popup");
-            ArrayList<PopupDto> popupList;
-            popupList = popupService.getPopupList();
-            System.out.println(popupList.get(0).getImg());
-            model.addAttribute("popupList", popupList);
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "template/demo_1/manage-popup";
-    }
-
-    @RequestMapping(value = "/admin/login", method = RequestMethod.POST)
-    public String adminLogin(Model model,
-                             @RequestParam(value = "id") String id,
+    @PostMapping("/admin/login")
+    public String adminLogin(@RequestParam(value = "id") String id,
                              @RequestParam(value = "password") String password,
-                             HttpServletRequest request,
                              HttpSession session){
         try{
             System.out.println("id: " + id);
             System.out.println("password: " + password);
             ArrayList<AdminLoginDto> loginInfo = adminloginService.getLoginInfo();
             AdminLoginDto result = loginInfo.get(0);
-            //model.addAttribute("img", "/resources/img/test.png");
 
             if(id.equals(result.getId()) && password.equals(result.getPassword())){
                 session.setAttribute("adminLogin",result);
-                return "template/demo_1/admin-page";
-            }else{
-                return "adminLogin";
+                return "redirect:/admin";
             }
 
         }catch (Exception e){
             e.printStackTrace();
-            return "adminLogin";
         }
+        return "redirect:/admin/login";
     }
 
 
 
-
+    @GetMapping("admin/logout")
+    public String logout(HttpSession session){
+        try{
+            System.out.println("admin logout");
+            session.removeAttribute("adminLogin");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return "redirect:/admin/login";
+    }
 }

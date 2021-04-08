@@ -1,7 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<c:set var="path" value="${pageContext.request.contextPath}"/>
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -23,7 +21,7 @@
       href="https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@5.14.0/css/all.min.css"
     />
     <link rel="stylesheet" href="../../../../../../../wapp/login/login.css" />
-    <link rel="stylesheet" href="${path}/resources/assets/css/login/login.css">
+    <link rel="stylesheet" href="../assets/css/login/login.css">
   </head>
   <body class="stop-scrolling">
     <div class="grid">

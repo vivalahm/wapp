@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.test.mapper.LikesMapper">
+    <delete id="deleteLikes">
+        delete from likes where userNo=#{userNo} and lecNo=#{lecNo}
+    </delete>
+    <insert id="insertLikes">
+        insert into likes(userNo, lecNo, likeDate)
+        VALUES(#{userNo}, #{lecNo}, #{likeDate})
+    </insert>
+    <select id="readLikesListsOrderByLikeDateDesc" resultType="LikesDto">
+        select * from likes order by likeDate desc
+    </select>
+</mapper>

@@ -7,13 +7,18 @@ import com.test.service.kakao.KakaoApiService;
 import com.test.service.user.UserService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,41 +33,46 @@ public class UserRegisterController {
     KakaoApiService kakaoApiService;
 
     @GetMapping("/user/register")
-    public String registerUserView() {
-        return "userRegister";
-    }
+    public String registerUserView() { return "userRegister";}
 
     @RequestMapping(value = "/user/register", method = RequestMethod.POST)
     public String registerUser(UserRegisterDto userRegisterDto) {
 
         UserDto originUserDto = userService.readUserInfoListByUserEmail(userRegisterDto.getUserEmail());
-        if (originUserDto != null)
+        if (originUserDto != null) // 이미 존재하는 아이디입니다 알림창 띄워주기 or 중복확인기능 만들기
             return "userRegister";
 
-        Date d = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String date = sdf.format(d);
+
+        String targetPw = userRegisterDto.getUserPw();
+        PasswordEncoder passwordEncoder =  new BCryptPasswordEncoder(10); // 비밀번호 인코더 생성
+        userRegisterDto.setUserPw(passwordEncoder.encode(targetPw)); // 인코딩한 비밀번호를 userDto에 저장
+
+
 
         UserInsertDto userDto = new UserInsertDto(
                 userRegisterDto.getUserName(),
                 userRegisterDto.getUserEmail(),
                 userRegisterDto.getUserPw(),
-                date
+                sdf.format(new Date())
         );
 
         System.out.println("control " + userDto.toString());
 
         userService.insertUser(userDto);
 
-        System.out.println("insert userDto success");
+        System.out.println("insert userDto success"); // 유저에게 회원가입 완료 메세지 보여주기
         return "redirect:/user/login";
     }
 
     @RequestMapping("/user/kakao_login")
-    public String kakaoLogIn(@Param(value = "code") String code) {
+    public String kakaoLogIn(@Param(value = "code") String code,
+                             HttpServletRequest request,
+                             Model model) {
         System.out.println("code : " + code);
         String access_Token = kakaoApiService.getAccessToken(code);
         System.out.println("access_token : " + access_Token);
+        HttpSession session = request.getSession();
         HashMap<String, Object> userInfo = kakaoApiService.getUserInfo(access_Token);
 
         if (userInfo.get("email") != null) {
@@ -88,6 +98,16 @@ public class UserRegisterController {
                 userService.insertUser(userDto);
             }else{
                 System.out.println("Registered Kakao User");
+            }
+            if(session.getAttribute("userLogin") != null)
+                session.removeAttribute("userLogin");
+
+            UserDto userDto = userService.readUserInfoListByUserEmail(userEmail);
+            if(userDto != null && userDto.getUserEmail().equals(userEmail) && userDto.getUserName().equals(userName)){
+                session.setAttribute("userLogin", userDto);
+            }else {
+                //해당 로직을 돌면서 문제 생길 확률이 낮지만 혹시 모를 오류를 위해 등록
+                model.addAttribute("msg", "카카오 로그인 오류 및 알 수 없는 오류가 발생했습니다.");
             }
 
             return "redirect:/";
