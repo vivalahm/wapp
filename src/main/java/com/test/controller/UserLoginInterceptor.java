@@ -15,9 +15,10 @@ public class UserLoginInterceptor extends HandlerInterceptorAdapter {
 
         HttpSession session = request.getSession();
 
-        if(session == null) {
-            session.getAttribute("userLogin");
-            response.sendRedirect("/user/login");
+        Object user = session.getAttribute("userLogin");
+        if(user == null) {
+            System.out.println("로그인 정보가 없습니다.");
+            response.sendRedirect("/social_login");
             return false;
         }
 

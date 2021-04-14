@@ -25,7 +25,7 @@
     </bean>
 
     <!-- 일반 파일 업로드 경로 -->
-<!--    <mvc:resources mapping="/files/**" location="/files/" cache-period="0" />-->
+    <!--    <mvc:resources mapping="/files/**" location="/files/" cache-period="0" />-->
 
     <mvc:interceptors>
         <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
@@ -43,8 +43,7 @@
         </mvc:interceptor>
 
         <mvc:interceptor>
-            <mvc:mapping path="/user/login/**" />
-            <mvc:exclude-mapping path="/user/login"/>
+            <mvc:mapping path="/user/**" />
             <bean class="com.test.controller.UserLoginInterceptor" />
         </mvc:interceptor>
 
@@ -56,4 +55,5 @@
         <property name="suffix" value=".jsp"/>
         <property name="order" value="1"/>
     </bean>
+
 </beans>

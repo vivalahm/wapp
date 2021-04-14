@@ -11,17 +11,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class UserRegisterController {
@@ -32,10 +31,10 @@ public class UserRegisterController {
     @Autowired
     KakaoApiService kakaoApiService;
 
-    @GetMapping("/user/register")
+    @GetMapping("/register")
     public String registerUserView() { return "userRegister";}
 
-    @RequestMapping(value = "/user/register", method = RequestMethod.POST)
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String registerUser(UserRegisterDto userRegisterDto) {
 
         UserDto originUserDto = userService.readUserInfoListByUserEmail(userRegisterDto.getUserEmail());
@@ -47,8 +46,6 @@ public class UserRegisterController {
         String targetPw = userRegisterDto.getUserPw();
         PasswordEncoder passwordEncoder =  new BCryptPasswordEncoder(10); // 비밀번호 인코더 생성
         userRegisterDto.setUserPw(passwordEncoder.encode(targetPw)); // 인코딩한 비밀번호를 userDto에 저장
-
-
 
         UserInsertDto userDto = new UserInsertDto(
                 userRegisterDto.getUserName(),
@@ -62,10 +59,10 @@ public class UserRegisterController {
         userService.insertUser(userDto);
 
         System.out.println("insert userDto success"); // 유저에게 회원가입 완료 메세지 보여주기
-        return "redirect:/user/login";
+        return "redirect:/login";
     }
 
-    @RequestMapping("/user/kakao_login")
+    @RequestMapping("/kakao_login")
     public String kakaoLogIn(@Param(value = "code") String code,
                              HttpServletRequest request,
                              Model model) {

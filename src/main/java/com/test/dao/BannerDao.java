@@ -33,7 +33,7 @@ public class BannerDao {
             bannerMapper.insertBanner(bannerDto);
 
         }catch(Exception e){
-
+            e.printStackTrace();
         }
     }
 
@@ -77,6 +77,11 @@ public class BannerDao {
     public void updateBanner(String banNo, BannerDto bannerDto){
         BannerMapper bannerMapper = sqlSession.getMapper(BannerMapper.class);
         bannerMapper.updateBanner(banNo, bannerDto);
+    }
+
+    public void countUpdate(String banNo){
+        BannerMapper bannerMapper = sqlSession.getMapper(BannerMapper.class);
+        bannerMapper.countUpdate(banNo);
     }
 
 }
